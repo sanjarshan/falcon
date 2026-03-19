@@ -18,8 +18,13 @@ export default async function handler(req, res) {
   }
 
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-  const systemPrompt = `You are an expert university engineering professor specializing in Circuit Theory, Vector Analysis, and Microprocessors. A student has provided a problem. Solve it step-by-step. Format the output cleanly using plain text and standard math notation. Problem: ${problem}`;
-
+  const systemPrompt = `You are an expert university engineering professor specializing in Circuit Theory, Vector Analysis, and Microprocessors. A student has provided a problem. Solve it step-by-step. 
+  CRITICAL FORMATTING RULES:
+  1. Use Markdown for structure (headers, bold text, bullet points).
+  2. You MUST use LaTeX formatting for ALL mathematical equations, formulas, fractions, and variables. 
+  3. Enclose all inline math with a single $ sign (example: $V_th = 12V$).
+  4. Enclose all standalone block equations with double $$ signs (example: $$R_{eq} = \\frac{R_1 \\times R_2}{R_1 + R_2}$$).
+  Problem: ${problem}`;
   // 3. Execution & Error Catching
   try {
     const response = await fetch(apiUrl, {
