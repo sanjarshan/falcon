@@ -5,18 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Falcon | Engineering Solver</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
     <script>
       MathJax = {
         tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }
       };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: #0d1117;
             color: #c9d1d9;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Inter', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -85,6 +87,21 @@
             display: none; /* Hidden until solve is clicked */
             white-space: pre-wrap;
         }
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            border-top: 3px solid #ffffff;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -112,13 +129,13 @@ async function simulateSolve() {
                 return;
             }
 
-            // Lock the button so users don't spam the API
-            btn.innerText = "CALCULATING (CONTACTING AI)...";
+            // Lock the button and add the spinner
+            btn.innerHTML = '<div class="spinner"></div> CALCULATING MATRIX...';
             btn.style.backgroundColor = "#8b949e";
             btn.disabled = true;
             
             output.style.display = "block";
-            output.innerHTML = "Routing problem through Falcon Bridge...";
+            output.innerHTML = "Establishing secure connection to Falcon Server...";
 
             try {
                 const vercelURL = "https://falcon-tawny.vercel.app/api/solve";
@@ -153,7 +170,7 @@ async function simulateSolve() {
                 output.innerHTML = "Fatal Error: Could not connect to the server. Check your internet or Vercel logs.";
             } finally {
                 // Unlock the button
-                btn.innerText = "INITIATE SOLVE";
+                btn.innerHTML = "INITIATE SOLVE";
                 btn.style.backgroundColor = "#238636";
                 btn.disabled = false;
             }
