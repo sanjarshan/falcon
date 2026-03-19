@@ -8,44 +8,51 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed.' });
 
-  const { problem } = req.body;
-  if (!problem) return res.status(400).json({ error: 'No engineering problem provided.' });
-
-  // 2. The API Key Check
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-      return res.status(500).json({ error: 'Vercel Error: The GEMINI_API_KEY environment variable is missing.' });
+  // 2. Extract Text and Image from the Frontend
+  const { problem, image } = req.body;
+  
+  // Validation: If both are missing, we can't solve anything
+  if (!problem && !image) {
+    return res.status(400).json({ error: 'No engineering problem or image provided.' });
   }
 
+  const apiKey = process.env.GEMINI_API_KEY;
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-  const systemPrompt = `You are a high-precision, automated engineering solver engine. Your goal is to provide direct, Photomath-style step-by-step solutions for Circuit Theory, Calculus, and Math problems.
 
-  STRICT OPERATIONAL RULES:
-  1. ZERO CHITCHAT: NEVER use greetings ("Greetings", "Hello"). NEVER use transitional filler ("Let's break this down", "Here is the solution").
-  2. IMMEDIATE EXECUTION: Start your output directly with "### Step 1: [Action]". 
-  3. CONCISE STEPS: Explain the "why" of a step in 1 brief sentence, then immediately show the math.
-  4. THE FINAL ANSWER: Clearly label the final answer with "### Final Answer" at the bottom.
-  5. SHORT SUMMARY: You may include a maximum 2-sentence summary of the principle used at the very end. NO concluding remarks or cheerleading.
-  6. LATEX MANDATE: Use LaTeX for ALL math. Single $ for inline, double $$ for block equations.
-  7. NO ASCII ART: Never draw diagrams using text characters.
+  // 3. Construct the Multimodal Payload
+  // We build a "parts" array. We always include the text prompt.
+  const promptText = `You are a high-precision engineering solver. Solve the problem provided in the text or the attached image step-by-step. 
+  RULES: Use LaTeX for math ($ for inline, $$ for block). NO chitchat. Start with Step 1.
+  User Text Input: ${problem || "Solve the problem shown in the image."}`;
 
-  Problem to solve: ${problem}`;
-  // 3. Execution & Error Catching
+  let requestParts = [{ text: promptText }];
+
+  // If the user uploaded an image, we attach it to the request
+  if (image) {
+    requestParts.push({
+      inline_data: {
+        mime_type: "image/jpeg", // Works for png/jpg
+        data: image
+      }
+    });
+  }
+
+  // 4. Fire the Request to Google
   try {
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: systemPrompt }] }] })
+      body: JSON.stringify({
+        contents: [{ parts: requestParts }]
+      })
     });
 
     const data = await response.json();
     
-    // IF GOOGLE REJECTS US
     if (!response.ok || !data.candidates) {
-        return res.status(500).json({ error: `Google API Error: ${JSON.stringify(data)}` });
+        return res.status(500).json({ error: `Google API Error: ${data.error?.message || 'Check your image size.'}` });
     }
 
-    // IF SUCCESS
     const answer = data.candidates[0].content.parts[0].text;
     res.status(200).json({ solution: answer });
 
