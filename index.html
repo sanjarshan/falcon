@@ -94,28 +94,54 @@
     </div>
 
     <script>
-        // This is a temporary function just to test the UI tonight.
-        // Tomorrow we replace this with the actual Vercel API fetch.
-        function simulateSolve() {
+async function simulateSolve() {
             const btn = document.getElementById('solveBtn');
             const output = document.getElementById('outputArea');
             const input = document.getElementById('problemInput').value;
 
             if(!input) {
-                alert("Please enter a problem first.");
+                alert("Please enter a problem first. The system requires input.");
                 return;
             }
 
-            btn.innerText = "CALCULATING...";
+            // Lock the button so users don't spam the API
+            btn.innerText = "CALCULATING (CONTACTING AI)...";
             btn.style.backgroundColor = "#8b949e";
+            btn.disabled = true;
             
-            // Simulating a 2 second API delay
-            setTimeout(() => {
-                output.style.display = "block";
-                output.innerHTML = "System initialized.\n\nSimulated Output for: " + input + "\n\n[API Connection Pending Vercel Setup]";
+            output.style.display = "block";
+            output.innerHTML = "Routing problem through Falcon Bridge...";
+
+            try {
+                const vercelURL = "https://falcon-tawny.vercel.app/api/solve";
+
+                const response = await fetch(vercelURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ problem: input })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Success! Display the clean solution
+                    output.innerHTML = data.solution;
+                } else {
+                    // API or Vercel Error
+                    output.innerHTML = "System Error: " + (data.error || "The bridge collapsed.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                output.innerHTML = "Fatal Error: Could not connect to the server. Check your internet or Vercel logs.";
+            } finally {
+                // Unlock the button
                 btn.innerText = "INITIATE SOLVE";
                 btn.style.backgroundColor = "#238636";
-            }, 2000);
+                btn.disabled = false;
+            }
         }
     </script>
 
