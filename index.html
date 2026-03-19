@@ -102,6 +102,30 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .math-toolbar {
+            width: 100%;
+            display: flex;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+        .math-toolbar button {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            margin-top: 0; 
+            width: auto;
+            flex-grow: 1;
+            transition: background-color 0.2s;
+            font-size: 16px;
+        }
+        .math-toolbar button:hover {
+            background-color: #30363d;
+            color: #58a6ff;
+        }
     </style>
 </head>
 <body>
@@ -110,7 +134,17 @@
         <h1>PROJECT FALCON</h1>
         <p class="subtitle">Advanced Engineering Step-by-Step Solver</p>
 
-        <textarea id="problemInput" placeholder="Enter your Circuit Theory, Vector Analysis, or math problem here..."></textarea>
+        <div class="math-toolbar">
+            <button type="button" onclick="insertMath('∫')">∫</button>
+            <button type="button" onclick="insertMath('√')">√</button>
+            <button type="button" onclick="insertMath('π')">π</button>
+            <button type="button" onclick="insertMath('θ')">θ</button>
+            <button type="button" onclick="insertMath('∞')">∞</button>
+            <button type="button" onclick="insertMath('∑')">∑</button>
+            <button type="button" onclick="insertMath('^')">^</button>
+            <button type="button" onclick="insertMath('e')">e</button>
+        </div>
+        <textarea id="problemInput" placeholder="Example: calculate the integral of x^2 + π..."></textarea>
         
         <button id="solveBtn" onclick="simulateSolve()">INITIATE SOLVE</button>
 
@@ -119,7 +153,24 @@
     </div>
 
     <script>
-async function simulateSolve() {
+
+        function insertMath(symbol) {
+            const input = document.getElementById('problemInput');
+            // Find exactly where the cursor is currently resting
+            const startPos = input.selectionStart;
+            const endPos = input.selectionEnd;
+            
+            // Slice the text, inject the symbol, and glue it back together
+            input.value = input.value.substring(0, startPos) + symbol + input.value.substring(endPos, input.value.length);
+            
+            // Move the cursor right after the newly inserted symbol
+            input.selectionStart = input.selectionEnd = startPos + symbol.length;
+            
+            // Refocus the text box so they can keep typing immediately
+            input.focus();
+        }
+        
+        async function simulateSolve() {
             const btn = document.getElementById('solveBtn');
             const output = document.getElementById('outputArea');
             const input = document.getElementById('problemInput').value;
