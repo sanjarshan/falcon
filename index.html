@@ -141,6 +141,7 @@
             </label>
             <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="processImage()">
             <span id="imageName" style="color: #8b949e; font-size: 14px; font-family: 'Inter', sans-serif;">No image selected</span>
+            <button id="removeImgBtn" onclick="clearImage()" style="display: none; background: none; border: none; color: #f85149; cursor: pointer; font-size: 12px; text-decoration: underline; width: auto; margin: 0; padding: 0 10px;">Remove</button>
         </div>
 
         <img id="imagePreview" style="max-width: 100%; max-height: 250px; display: none; margin-bottom: 15px; border-radius: 5px; border: 1px solid #30363d; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
@@ -163,6 +164,18 @@
 
     <script>
 
+        function clearImage() {
+            // 1. Reset the logic variable
+            base64ImagePayload = null;
+            
+            // 2. Clear the file input so they can upload the SAME file name again if they want
+            document.getElementById('imageUpload').value = "";
+            
+            // 3. Reset the UI
+            document.getElementById('imageName').innerText = "No image selected";
+            document.getElementById('imagePreview').style.display = "none";
+            document.getElementById('removeImgBtn').style.display = "none";
+        }
         // Listen for the 'paste' event anywhere on the window
         window.addEventListener('paste', (event) => {
             const items = (event.clipboardData || event.originalEvent.clipboardData).items;
@@ -176,7 +189,7 @@
                 }
             }
         });
-        
+
         // Global Mobile Fixes for MathLive
         window.addEventListener('DOMContentLoaded', () => {
             const mathField = document.getElementById('mathInput');
@@ -227,7 +240,7 @@
 
             // Update UI with file name (or "Pasted Image")
             document.getElementById('imageName').innerText = manualFile ? "Pasted Image" : file.name;
-            
+            document.getElementById('removeImgBtn').style.display = "inline-block";
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = document.getElementById('imagePreview');
