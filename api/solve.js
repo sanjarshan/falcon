@@ -22,6 +22,7 @@ export default async function handler(req, res) {
   // 3. Construct the Multimodal Payload
   // We build a "parts" array. We always include the text prompt.
   const promptText = `You are a high-precision engineering solver. Solve the problem provided in the text or the attached image step-by-step. 
+  Pay extreme attention to exponents and superscripts in images.
   1. ZERO CHITCHAT: NEVER use greetings ("Greetings", "Hello"). NEVER use transitional filler ("Let's break this down", "Here is the solution").
   2. IMMEDIATE EXECUTION: Start your output directly with "### Step 1: [Action]". 
   3. CONCISE STEPS: Explain the "why" of a step in 1 brief sentence, then immediately show the math.
