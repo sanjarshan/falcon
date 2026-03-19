@@ -11,6 +11,7 @@
       };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer src="https://unpkg.com/mathlive"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -134,17 +135,11 @@
         <h1>PROJECT FALCON</h1>
         <p class="subtitle">Advanced Engineering Step-by-Step Solver</p>
 
-        <div class="math-toolbar">
-            <button type="button" onclick="insertMath('∫')">∫</button>
-            <button type="button" onclick="insertMath('√')">√</button>
-            <button type="button" onclick="insertMath('π')">π</button>
-            <button type="button" onclick="insertMath('θ')">θ</button>
-            <button type="button" onclick="insertMath('∞')">∞</button>
-            <button type="button" onclick="insertMath('∑')">∑</button>
-            <button type="button" onclick="insertMath('^')">^</button>
-            <button type="button" onclick="insertMath('e')">e</button>
-        </div>
-        <textarea id="problemInput" placeholder="Example: calculate the integral of x^2 + π..."></textarea>
+        <math-field id="problemInput" style="width: 100%; padding: 15px; font-size: 1.5em; background-color: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 5px; outline: none; box-sizing: border-box;">
+        </math-field>
+        <p style="font-size: 0.85em; color: #8b949e; text-align: center; margin-top: 10px; margin-bottom: 20px;">
+            Type naturally: Use <b>/</b> for fractions, <b>^</b> for powers. Type <b>\int</b> for integrals, <b>\pi</b> for π.
+        </p>
         
         <button id="solveBtn" onclick="simulateSolve()">INITIATE SOLVE</button>
 
@@ -153,26 +148,11 @@
     </div>
 
     <script>
-
-        function insertMath(symbol) {
-            const input = document.getElementById('problemInput');
-            // Find exactly where the cursor is currently resting
-            const startPos = input.selectionStart;
-            const endPos = input.selectionEnd;
-            
-            // Slice the text, inject the symbol, and glue it back together
-            input.value = input.value.substring(0, startPos) + symbol + input.value.substring(endPos, input.value.length);
-            
-            // Move the cursor right after the newly inserted symbol
-            input.selectionStart = input.selectionEnd = startPos + symbol.length;
-            
-            // Refocus the text box so they can keep typing immediately
-            input.focus();
-        }
-        
         async function simulateSolve() {
+
             const btn = document.getElementById('solveBtn');
             const output = document.getElementById('outputArea');
+            // This gets the beautiful LaTeX from the MathLive box
             const input = document.getElementById('problemInput').value;
 
             if(!input) {
