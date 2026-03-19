@@ -24,6 +24,7 @@ export default async function handler(req, res) {
   2. You MUST use LaTeX formatting for ALL mathematical equations, formulas, fractions, and variables. 
   3. Enclose all inline math with a single $ sign (example: $V_th = 12V$).
   4. Enclose all standalone block equations with double $$ signs (example: $$R_{eq} = \\frac{R_1 \\times R_2}{R_1 + R_2}$$).
+  5. STRICT RULE: NEVER draw ASCII art diagrams. They break the UI. Describe circuits clearly in text and focus purely on the mathematical derivation.
   Problem: ${problem}`;
   // 3. Execution & Error Catching
   try {
