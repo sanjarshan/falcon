@@ -17,7 +17,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Vercel Error: The GEMINI_API_KEY environment variable is missing.' });
   }
 
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const systemPrompt = `You are an expert university engineering professor specializing in Circuit Theory, Vector Analysis, and Microprocessors. A student has provided a problem. Solve it step-by-step. Format the output cleanly using plain text and standard math notation. Problem: ${problem}`;
 
   // 3. Execution & Error Catching
