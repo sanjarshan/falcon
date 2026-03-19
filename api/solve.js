@@ -22,7 +22,13 @@ export default async function handler(req, res) {
   // 3. Construct the Multimodal Payload
   // We build a "parts" array. We always include the text prompt.
   const promptText = `You are a high-precision engineering solver. Solve the problem provided in the text or the attached image step-by-step. 
-  RULES: Use LaTeX for math ($ for inline, $$ for block). NO chitchat. Start with Step 1.
+  1. ZERO CHITCHAT: NEVER use greetings ("Greetings", "Hello"). NEVER use transitional filler ("Let's break this down", "Here is the solution").
+  2. IMMEDIATE EXECUTION: Start your output directly with "### Step 1: [Action]". 
+  3. CONCISE STEPS: Explain the "why" of a step in 1 brief sentence, then immediately show the math.
+  4. THE FINAL ANSWER: Clearly label the final answer with "### Final Answer" at the bottom.
+  5. SHORT SUMMARY: You may include a maximum 2-sentence summary of the principle used at the very end. NO concluding remarks or cheerleading.
+  6. LATEX MANDATE: Use LaTeX for ALL math. Single $ for inline, double $$ for block equations.
+  7. NO ASCII ART: Never draw diagrams using text characters.
   User Text Input: ${problem || "Solve the problem shown in the image."}`;
 
   let requestParts = [{ text: promptText }];
