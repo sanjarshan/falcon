@@ -17,24 +17,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #0d1117;
+            /* Subtle spotlight effect at the top */
+            background: radial-gradient(circle at top, #1a202c, #0d1117); 
             color: #c9d1d9;
             font-family: 'Inter', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 50px 20px;
+            padding: 40px 15px;
             margin: 0;
+            min-height: 100vh;
         }
+        
         .container {
-            max-width: 700px;
+            max-width: 750px;
             width: 100%;
-            background-color: #161b22;
-            padding: 30px;
-            border-radius: 10px;
-            border: 1px solid #30363d;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background-color: rgba(22, 27, 34, 0.7); /* Slightly transparent */
+            backdrop-filter: blur(12px); /* Premium Glassmorphism effect */
+            -webkit-backdrop-filter: blur(12px); /* For Safari */
+            padding: 35px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle glowing border */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6); /* Deep shadow to make it float */
+            box-sizing: border-box;
         }
+
+        /* Custom Dark Mode Scrollbars */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0d1117; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
         h1 {
             color: #58a6ff;
             text-align: center;
@@ -126,6 +138,22 @@
         .math-toolbar button:hover {
             background-color: #30363d;
             color: #58a6ff;
+        }
+
+        /* Mobile Armor & Scaling */
+        @media (max-width: 600px) {
+            body { padding: 20px 10px; }
+            .container { padding: 20px; }
+            h1 { font-size: 1.8em; }
+            
+            /* Enforcing 16px stops iOS from auto-zooming and breaking the screen */
+            #textInput { font-size: 16px !important; padding: 12px; }
+            #mathInput { font-size: 16px !important; padding: 12px; }
+            
+            button { padding: 12px; font-size: 16px; }
+            
+            /* Ensure the image preview doesn't blow out the container */
+            #imagePreview { max-height: 200px; }
         }
     </style>
 </head>
