@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Falcon | Engineering Solver</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <script>
+      MathJax = {
+        tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body {
             background-color: #0d1117;
@@ -126,8 +134,15 @@ async function simulateSolve() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Success! Display the clean solution
-                    output.innerHTML = data.solution;
+                    // 1. Convert Markdown to HTML
+                    output.innerHTML = marked.parse(data.solution);
+                    
+                    // 2. Tell MathJax to scan the box and draw the beautiful math
+                    if (window.MathJax) {
+                        MathJax.typesetPromise([output]).catch(function (err) {
+                            console.error('MathJax Error:', err.message);
+                        });
+                    }
                 } else {
                     // API or Vercel Error
                     output.innerHTML = "System Error: " + (data.error || "The bridge collapsed.");
