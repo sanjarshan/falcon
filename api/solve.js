@@ -56,14 +56,19 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     
+    // Masking Rate Limits and Internal Errors
     if (!response.ok || !data.candidates) {
-        return res.status(500).json({ error: `Google API Error: ${data.error?.message || 'Check your image size.'}` });
+        if (response.status === 429) { // HTTP 429 is "Too Many Requests"
+            return res.status(503).json({ error: "System is currently experiencing high traffic. Please try again in a few seconds." });
+        }
+        return res.status(500).json({ error: "Unable to process the calculation at this time. Please verify your input and try again." });
     }
 
     const answer = data.candidates[0].content.parts[0].text;
     res.status(200).json({ solution: answer });
 
   } catch (error) {
-    res.status(500).json({ error: `Fatal Bridge Error: ${error.message}` });
+    // Masking fatal server crashes
+    res.status(500).json({ error: "Connection to the solver core failed. Please check your network." });
   }
 }
