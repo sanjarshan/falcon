@@ -14,6 +14,8 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script defer src="https://unpkg.com/mathlive"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -47,7 +49,6 @@
       .neon-text-cyan { color: #00f2ff; }
       .neon-text-green { color: #a0fb00; }
       
-      /* Base MathField Styling */
       math-field {
           width: 100%; min-height: 120px; font-size: 1.25rem; color: #ffffff;
           background: transparent; border: none; outline: none; padding: 0; font-family: monospace;
@@ -55,7 +56,6 @@
       }
       math-field::part(virtual-keyboard-toggle) { color: #00f2ff; }
 
-      /* THE COMPACT MODE UI PHYSICS */
       #inputCard { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: text; }
       
       .is-compact {
@@ -76,7 +76,6 @@
           transform-origin: right center;
       }
 
-      /* CUSTOM CYBERPUNK SCROLLBAR */
       .custom-scroll::-webkit-scrollbar { display: block; width: 6px; }
       .custom-scroll::-webkit-scrollbar-track { background: #0a0a0a; border-radius: 10px; }
       .custom-scroll::-webkit-scrollbar-thumb { background: #00f2ff; border-radius: 10px; }
@@ -100,7 +99,6 @@
         </aside>
 
         <main class="order-1 md:order-2 flex flex-col items-center relative">
-            
             <header class="text-center mb-8 sticky top-0 bg-[#000000e6] backdrop-blur-md z-50 pt-8 pb-4 w-full border-b border-white/5">
                 <h1 class="text-4xl md:text-5xl font-bold tracking-tighter mb-1">FALCON</h1>
                 <p class="text-[10px] md:text-xs font-medium tracking-[0.2em] md:tracking-[0.3em] uppercase opacity-80">Engineering Calculation Solver</p>
@@ -145,12 +143,11 @@
                     <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2 flex-shrink-0">
                         <h3 class="text-primary font-bold tracking-widest uppercase text-sm">Processed Output</h3>
                         <div id="exportBtnRow" class="hidden">
-                            <button onclick="alert('PDF Engine Temporarily Offline for UI Architecture Testing.')" class="px-4 py-1.5 bg-primary text-black rounded-full text-[10px] font-bold uppercase tracking-widest hover:brightness-110 transition-all shadow-[0_0_10px_rgba(0,242,255,0.3)]">
+                            <button onclick="exportSinglePDF()" class="px-6 py-2 bg-primary text-black rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all shadow-[0_0_10px_rgba(0,242,255,0.3)]">
                                 Export PDF
                             </button>
                         </div>
                     </div>
-                    
                     <div id="outputArea" class="text-white font-sans text-base leading-relaxed overflow-y-auto custom-scroll pr-4 pb-4"></div>
                 </div>
             </div>
@@ -169,24 +166,23 @@
 
     </div>
 
+    <div id="pdfLoadingOverlay" class="fixed inset-0 bg-black flex flex-col items-center justify-center z-[999999]" style="display: none;">
+        <div class="w-12 h-12 border-4 border-white/10 border-t-primary rounded-full animate-spin"></div>
+        <p class="text-primary mt-6 font-bold tracking-widest uppercase text-sm">Compiling Report...</p>
+    </div>
+
     <script>
         let currentMode = 'text';
         let base64ImagePayload = null;
         let solveHistory = JSON.parse(localStorage.getItem('falconHistory')) || [];
         let currentHistoryIndex = -1;
+        let currentCleanSolution = "";
 
-        // --- NEW: UI EXPAND/SHRINK LOGIC ---
-        function shrinkInput() {
-            document.getElementById('inputCard').classList.add('is-compact');
-        }
+        function shrinkInput() { document.getElementById('inputCard').classList.add('is-compact'); }
         function expandInput() {
             document.getElementById('inputCard').classList.remove('is-compact');
-            // Give focus back to the correct input field
-            if(currentMode === 'text') {
-                document.getElementById('textInput').focus();
-            } else {
-                document.getElementById('mathInput').focus();
-            }
+            if(currentMode === 'text') document.getElementById('textInput').focus();
+            else document.getElementById('mathInput').focus();
         }
 
         function setMode(mode) {
@@ -198,19 +194,15 @@
             const slider = document.getElementById('toggleSlider');
 
             if (mode === 'text') {
-                textInput.style.display = "block";
-                mathInput.style.display = "none";
-                textBtn.style.color = "#000000";
-                mathBtn.style.color = "#00f2ff";
+                textInput.style.display = "block"; mathInput.style.display = "none";
+                textBtn.style.color = "#000000"; mathBtn.style.color = "#00f2ff";
                 slider.style.transform = "translateX(0%)";
             } else {
-                textInput.style.display = "none";
-                mathInput.style.display = "block";
-                mathBtn.style.color = "#000000";
-                textBtn.style.color = "#00f2ff";
+                textInput.style.display = "none"; mathInput.style.display = "block";
+                mathBtn.style.color = "#000000"; textBtn.style.color = "#00f2ff";
                 slider.style.transform = "translateX(100%)";
             }
-            expandInput(); // Always expand when switching modes to type
+            expandInput(); 
         }
 
         function processImage(manualFile = null) {
@@ -252,8 +244,9 @@
             clearImage();
             document.getElementById('outputContainer').style.display = "none";
             document.getElementById('outputArea').innerHTML = "";
+            currentCleanSolution = "";
             currentHistoryIndex = -1;
-            expandInput(); // Expand input on new calc
+            expandInput(); 
             renderHistory();
         }
 
@@ -303,12 +296,12 @@
             } else clearImage();
             
             document.getElementById('outputContainer').style.display = "flex";
+            currentCleanSolution = entry.solution; 
             document.getElementById('outputArea').innerHTML = entry.solution;
             document.getElementById('exportBtnRow').style.display = "block";
             
-            shrinkInput(); // Shrink input when loading history
+            shrinkInput(); 
             document.getElementById('outputArea').scrollTop = 0;
-            
             if (window.MathJax) MathJax.typesetPromise([document.getElementById('outputArea')]);
         }
 
@@ -326,8 +319,6 @@
             outputContainer.style.display = "flex"; 
             outputArea.innerHTML = "Establishing secure connection...";
             document.getElementById('exportBtnRow').style.display = "none";
-            
-            // Shrink the input box immediately to make room for the loading state
             shrinkInput();
 
             try {
@@ -338,6 +329,7 @@
                 const data = await response.json();
                 if (response.ok) {
                     const formatted = marked.parse(data.solution);
+                    currentCleanSolution = formatted; 
                     outputArea.innerHTML = formatted;
                     
                     if (window.MathJax) MathJax.typesetPromise([outputArea]);
@@ -347,6 +339,93 @@
                 } else outputArea.innerHTML = `<span class="text-red-400">Error: ${data.error}</span>`;
             } catch (e) { outputArea.innerHTML = "<span class='text-red-400'>Fatal Error: Connection failed.</span>"; }
             finally { btn.innerHTML = "SOLVE"; btn.disabled = false; btn.style.opacity = '1'; }
+        }
+
+        // ==========================================================
+        // THE IN-MEMORY PDF ENGINE (V20 - Final Text & Fraction Fixes)
+        // ==========================================================
+        function exportSinglePDF() {
+            const textVal = document.getElementById('textInput').value.trim();
+            const mathVal = document.getElementById('mathInput').value.trim();
+            
+            let inputProblem = "";
+            if (currentMode === 'math' && mathVal) {
+                inputProblem = `$$ ${mathVal} $$`; 
+            } else {
+                inputProblem = textVal;
+            }
+            
+            const overlay = document.getElementById('pdfLoadingOverlay');
+            overlay.style.display = 'flex';
+
+            const memoryDiv = document.createElement('div');
+            memoryDiv.style.width = '800px';
+            memoryDiv.style.padding = '40px';
+            memoryDiv.style.backgroundColor = 'white';
+            memoryDiv.style.color = 'black';
+            memoryDiv.style.fontFamily = 'sans-serif';
+            memoryDiv.style.boxSizing = 'border-box';
+            
+            let imgTag = '';
+            if (base64ImagePayload) {
+                imgTag = `<img src="data:image/jpeg;base64,${base64ImagePayload}" style="max-height: 250px; margin-top: 15px; border: 1px solid #ccc; border-radius: 4px;">`;
+            }
+
+            memoryDiv.innerHTML = `
+                <style>
+                    /* Force Strict Text Wrapping */
+                    p, div, span { white-space: normal !important; word-wrap: break-word !important; word-break: break-word !important; max-width: 100%; }
+                    /* Force MathJax Fraction Lines to be visible in HTML2Canvas */
+                    mjx-lin { border-top: 2px solid black !important; }
+                    .mjx-solid { border-top: 2px solid black !important; }
+                </style>
+
+                <div style="border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <h1 style="font-size: 36px; font-weight: bold; margin: 0; letter-spacing: -1px; font-family: 'Space Grotesk', sans-serif;">FALCON</h1>
+                    <div style="font-size: 10px; color: gray; text-transform: uppercase; letter-spacing: 2px; font-family: monospace;">Engineering Calculation Report</div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <h3 style="font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 10px; display: inline-block;">Question</h3>
+                    <div style="font-size: 18px; font-weight: 500;">${inputProblem || "Visual / Image Calculation"}</div>
+                    ${imgTag}
+                </div>
+                
+                <div>
+                    <h3 style="font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 10px; display: inline-block;">Solution</h3>
+                    <div style="font-size: 16px; line-height: 1.6;">${currentCleanSolution}</div>
+                </div>
+                
+                <div style="margin-top: 50px; padding-top: 10px; border-top: 1px solid #eee; text-align: center; font-size: 10px; color: gray; text-transform: uppercase; letter-spacing: 2px; font-family: monospace;">
+                    Generated by Falcon Calculation Engine
+                </div>
+            `;
+
+            const opt = {
+                margin:       0.5, 
+                filename:     'Falcon_Report_' + Date.now() + '.pdf',
+                image:        { type: 'jpeg', quality: 1.0 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true }, 
+                pagebreak:    { mode: 'css', avoid: ['mjx-container', 'p', 'h3', 'img'] }, // Prevents breaking equations in half
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            setTimeout(() => {
+                if (window.MathJax) {
+                    MathJax.typesetPromise([memoryDiv]).then(() => {
+                        html2pdf().set(opt).from(memoryDiv).save().then(() => {
+                            overlay.style.display = 'none'; 
+                        });
+                    }).catch(err => {
+                        console.error("Math rendering failed:", err);
+                        overlay.style.display = 'none';
+                    });
+                } else {
+                    html2pdf().set(opt).from(memoryDiv).save().then(() => {
+                        overlay.style.display = 'none';
+                    });
+                }
+            }, 100); 
         }
 
         window.addEventListener('DOMContentLoaded', () => {
