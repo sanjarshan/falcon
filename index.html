@@ -3,191 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Falcon | Engineering Solver</title>
+    <title>Falcon | Engineering Solver</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
-      MathJax = {
-        tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }
-      };
-    </script>
+    <script>MathJax = { tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] } };</script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script defer src="https://unpkg.com/mathlive"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
+        /* 1. Global Reset & Seamless UI */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { display: none; }
         body {
-            /* Subtle spotlight effect at the top */
-            background: radial-gradient(circle at top, #1a202c, #0d1117); 
-            color: #c9d1d9;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 15px;
-            margin: 0;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 750px;
-            width: 100%;
-            background-color: rgba(22, 27, 34, 0.7); /* Slightly transparent */
-            backdrop-filter: blur(12px); /* Premium Glassmorphism effect */
-            -webkit-backdrop-filter: blur(12px); /* For Safari */
-            padding: 35px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle glowing border */
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6); /* Deep shadow to make it float */
-            box-sizing: border-box;
-        }
-
-        /* Custom Dark Mode Scrollbars */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0d1117; }
-        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
-        h1 {
-            color: #58a6ff;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        p.subtitle {
-            text-align: center;
-            color: #8b949e;
-            margin-bottom: 25px;
-            font-size: 0.9em;
-        }
-        textarea {
-            width: 100%;
-            height: 150px;
-            background-color: #0d1117;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
-            border-radius: 5px;
-            padding: 15px;
-            font-family: inherit;
-            font-size: 16px;
-            resize: vertical;
-            box-sizing: border-box;
-        }
-        textarea:focus {
-            outline: none;
-            border-color: #58a6ff;
-        }
-        button {
-            width: 100%;
-            background-color: #238636;
+            background-color: #000000;
             color: #ffffff;
-            border: none;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.2s;
-        }
-        button:hover {
-            background-color: #2ea043;
-        }
-        .output-box {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #0d1117;
-            border-left: 4px solid #58a6ff;
-            border-radius: 0 5px 5px 0;
-            display: none; /* Hidden until solve is clicked */
-            white-space: pre-wrap;
-        }
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.2);
-            border-radius: 50%;
-            border-top: 3px solid #ffffff;
-            width: 18px;
-            height: 18px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .math-toolbar {
-            width: 100%;
-            display: flex;
-            gap: 5px;
-            margin-bottom: 8px;
-        }
-        .math-toolbar button {
-            background-color: #21262d;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
             font-family: 'Inter', sans-serif;
-            margin-top: 0; 
-            width: auto;
-            flex-grow: 1;
-            transition: background-color 0.2s;
-            font-size: 16px;
-        }
-        .math-toolbar button:hover {
-            background-color: #30363d;
-            color: #58a6ff;
+            -ms-overflow-style: none; scrollbar-width: none;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
         }
 
-        /* Mobile Armor & Scaling */
-        @media (max-width: 600px) {
-            body { padding: 20px 10px; }
-            .container { padding: 20px; }
-            h1 { font-size: 1.8em; }
-            
-            /* Enforcing 16px stops iOS from auto-zooming and breaking the screen */
-            #textInput { font-size: 16px !important; padding: 12px; }
-            #mathInput { font-size: 16px !important; padding: 12px; }
-            
-            button { padding: 12px; font-size: 16px; }
-            
-            /* Ensure the image preview doesn't blow out the container */
-            #imagePreview { max-height: 200px; }
+        /* 2. The 3-Column Grid Layout */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 250px minmax(400px, 700px) 250px;
+            gap: 50px;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        /* Typography */
+        h1.main-title { font-size: 2.5em; font-weight: 800; letter-spacing: 2px; text-align: center; margin-bottom: 5px; }
+        p.subtitle { text-align: center; font-size: 1em; margin-bottom: 40px; }
+        h3.section-title { font-size: 1.1em; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .neon-green-text { color: #00ff00; }
+        .neon-cyan-text { color: #00ffff; }
+
+        /* Sidebars & Lists */
+        .feature-list { list-style: none; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .feature-list li {
+            padding-left: 15px;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #e6e6e6;
+        }
+        .green-list li { border-left: 4px solid #00ff00; }
+        .cyan-list li { border-left: 4px solid #00ffff; }
+
+        /* 3. The Center Cockpit */
+        .main-content { display: flex; flex-direction: column; align-items: center; }
+        /* The Capsule Toggle */
+        .toggle-wrapper {
+            position: relative;
+            display: flex;
+            background-color: transparent;
+            border: 2px solid #00ffff;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            width: 250px;
+            overflow: hidden;
+        }
+        .toggle-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            color: #00ffff;
+            border: none;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            z-index: 2; /* Keeps text above the slider */
+            transition: color 0.3s ease;
+            text-align: center;
+        }
+        .toggle-btn.active { color: #000000; }
+        
+        /* The Sliding Neon Pill */
+        .toggle-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background-color: #00ffff;
+            border-radius: 50px;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 1;
+        }
+
+        /* Modern Input Wrapper */
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        textarea, math-field {
+            width: 100%;
+            height: 160px;
+            background-color: transparent !important;
+            color: #ffffff !important;
+            border: 2px solid #00ffff !important;
+            border-radius: 12px !important;
+            padding: 20px !important;
+            font-family: inherit;
+            font-size: 16px !important;
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+        }
+        textarea:focus, math-field:focus { box-shadow: 0 0 20px rgba(0, 255, 255, 0.4); }
+
+        /* Integrated Icons inside the text box */
+        .input-icons {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            display: flex;
+            gap: 15px;
+        }
+        .input-icons svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: #00ffff;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .input-icons svg:hover { filter: drop-shadow(0 0 5px #00ffff); transform: scale(1.1); }
+
+        /* Buttons & Dividers */
+        .action-row { width: 100%; display: flex; justify-content: flex-end; margin-bottom: 30px; }
+        .neon-btn {
+            background-color: #00ffff; color: #000000; border: none; padding: 10px 30px;
+            border-radius: 50px; font-size: 16px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); transition: 0.2s;
+        }
+        .neon-btn:hover { box-shadow: 0 0 20px rgba(0, 255, 255, 0.8); }
+        .neon-btn:disabled { background-color: #333; color: #888; box-shadow: none; cursor: not-allowed; }
+        
+        .neon-divider {
+            width: 100%; height: 6px; background-color: #00ffff; border: none; border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6); margin-bottom: 30px;
+        }
+
+        /* 4. Mobile Responsive Stack */
+        @media (max-width: 1000px) {
+            .app-layout {
+                display: flex; flex-direction: column; gap: 40px;
+            }
+            .sidebar-left, .sidebar-right { order: 2; width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+            .main-content { order: 1; }
+            .feature-list li { border-bottom: none; border-left: 4px solid; padding-left: 15px; padding-bottom: 0; text-align: left; }
+            .green-list li { border-bottom-color: #00ff00; }
+            .cyan-list li { border-bottom-color: #00ffff; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>PROJECT FALCON</h1>
-        <p class="subtitle">Advanced Engineering Step-by-Step Solver</p>
-
-        <div style="width: 100%; display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
-            <label for="imageUpload" style="background-color: #1f6feb; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; font-family: 'Inter', sans-serif; transition: background-color 0.2s;">
-                📷 UPLOAD EXAM QUESTION
-            </label>
-            <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="processImage()">
-            <span id="imageName" style="color: #8b949e; font-size: 14px; font-family: 'Inter', sans-serif;">No image selected</span>
-            <button id="removeImgBtn" onclick="clearImage()" style="display: none; background: none; border: none; color: #f85149; cursor: pointer; font-size: 12px; text-decoration: underline; width: auto; margin: 0; padding: 0 10px;">Remove</button>
-        </div>
-
-        <img id="imagePreview" style="max-width: 100%; max-height: 250px; display: none; margin-bottom: 15px; border-radius: 5px; border: 1px solid #30363d; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-
-        <div style="display: flex; background-color: #21262d; border-radius: 5px; padding: 4px; margin-bottom: 10px; border: 1px solid #30363d;">
-            <button id="textModeBtn" onclick="setMode('text')" style="flex: 1; padding: 8px; border: none; border-radius: 4px; background-color: #30363d; color: white; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px;">TEXT MODE</button>
-            <button id="mathModeBtn" onclick="setMode('math')" style="flex: 1; padding: 8px; border: none; border-radius: 4px; background-color: transparent; color: #8b949e; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px;">MATH MODE</button>
-        </div>
-
-        <textarea id="textInput" placeholder="Type your question here (Native Keyboard)..." style="width: 100%; height: 100px; background-color: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 5px; padding: 15px; font-family: 'Inter', sans-serif; font-size: 16px; box-sizing: border-box;"></textarea>
+    <div class="app-layout">
         
-        <math-field id="mathInput" style="display: none; width: 100%; padding: 15px; font-size: 1.2em; background-color: #0d1117; color: #c9d1d9; border: 1px solid #30363d; border-radius: 5px; outline: none; box-sizing: border-box;">
-        </math-field>
-        
-        <button id="solveBtn" onclick="simulateSolve()">INITIATE SOLVE</button>
+        <aside class="sidebar-left">
+            <h3 class="section-title neon-green-text">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00ff00" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                COMING SOON
+            </h3>
+            <ul class="feature-list green-list">
+                <li>PDF Uploads</li>
+                <li>Calculator Input</li>
+                <li>Book Export</li>
+            </ul>
+        </aside>
 
-        <div id="outputArea" class="output-box">
+        <main class="main-content">
+            <h1 class="main-title">FALCON</h1>
+            <p class="subtitle">Engineering Calculation Solver</p>
+
+            <div class="toggle-wrapper">
+                <div id="toggleSlider" class="toggle-slider"></div>
+                <button id="textModeBtn" class="toggle-btn active" onclick="setMode('text')">TEXT</button>
+                <button id="mathModeBtn" class="toggle-btn" onclick="setMode('math')">MATH</button>
             </div>
+
+            <div class="input-wrapper">
+                <textarea id="textInput" placeholder="Type your engineering problem..."></textarea>
+                <math-field id="mathInput" style="display: none;"></math-field>
+                
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="processImage()">
+                
+                <div class="input-icons">
+                    <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                    
+                    <svg viewBox="0 0 24 24" onclick="document.getElementById('imageUpload').click()"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                </div>
+            </div>
+
+            <div style="width: 100%; display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span id="imageName" style="color: #00ffff; font-size: 12px; font-weight: bold;"></span>
+                <button id="removeImgBtn" onclick="clearImage()" style="display: none; background: none; border: none; color: #ff4444; cursor: pointer; font-size: 12px;">REMOVE IMAGE</button>
+            </div>
+            <img id="imagePreview" style="max-width: 100%; max-height: 200px; display: none; margin-bottom: 15px; border-radius: 8px; border: 1px solid #00ffff;">
+
+            <div class="action-row">
+                <button id="solveBtn" class="neon-btn" onclick="simulateSolve()">SOLVE</button>
+            </div>
+
+            <hr class="neon-divider">
+
+            <div id="outputArea" style="width: 100%; color: #fff; display: none; margin-bottom: 20px; line-height: 1.6;"></div>
+            
+            <div class="action-row" id="exportBtnRow" style="display: none;">
+                <button class="neon-btn">EXPORT</button>
+            </div>
+        </main>
+
+        <aside class="sidebar-right">
+            <h3 class="section-title neon-cyan-text">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                HISTORY
+            </h3>
+            <ul class="feature-list cyan-list">
+                <li>Question 1</li>
+                <li>Question 2</li>
+                <li>Question 3</li>
+            </ul>
+            <button class="neon-btn" style="padding: 6px 20px; font-size: 14px; float: right;">EXPORT</button>
+        </aside>
+
     </div>
 
     <script>
@@ -238,21 +282,20 @@
             const mathInput = document.getElementById('mathInput');
             const textBtn = document.getElementById('textModeBtn');
             const mathBtn = document.getElementById('mathModeBtn');
+            const slider = document.getElementById('toggleSlider');
 
             if (mode === 'text') {
                 textInput.style.display = "block";
                 mathInput.style.display = "none";
-                textBtn.style.backgroundColor = "#30363d";
-                textBtn.style.color = "white";
-                mathBtn.style.backgroundColor = "transparent";
-                mathBtn.style.color = "#8b949e";
+                textBtn.classList.add('active');
+                mathBtn.classList.remove('active');
+                slider.style.transform = "translateX(0%)";
             } else {
                 textInput.style.display = "none";
                 mathInput.style.display = "block";
-                mathBtn.style.backgroundColor = "#30363d";
-                mathBtn.style.color = "white";
-                textBtn.style.backgroundColor = "transparent";
-                textBtn.style.color = "#8b949e";
+                mathBtn.classList.add('active');
+                textBtn.classList.remove('active');
+                slider.style.transform = "translateX(100%)";
             }
         }
 
@@ -340,10 +383,10 @@
             } catch (error) {
                 console.error(error);
                 output.innerHTML = "Fatal Error: Could not connect to the server. Check your internet or Vercel logs.";
-            } finally {
-                // Unlock the UI
-                btn.innerHTML = "INITIATE SOLVE";
-                btn.style.backgroundColor = "#238636";
+                } finally {
+                // Return button to default state
+                btn.innerHTML = "SOLVE";
+                btn.style.backgroundColor = "#00ffff"; // Or remove this line if your CSS class handles the color
                 btn.disabled = false;
             }
         }
