@@ -5,6 +5,30 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
     <title>Falcon | Sumtying</title>
     
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    
+    <meta name="description" content="A sovereign engineering calculation solver. Dedicated math vector engine and instant PDF ledgers.">
+    <meta name="keywords" content="Falcon Calculator, Sumtying, Math Engine, Sanjarshan Shankar, SaaS, Engineering Tools">
+    <meta name="author" content="Sanjarshan Shankar">
+    <meta name="creator" content="Sanjarshan Shankar">
+    <meta name="publisher" content="Sanjarshan Shankar">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Falcon | Sumtying">
+    <meta property="og:description" content="The sovereign calculation engine for digital architects. Created by Sanjarshan Shankar.">
+    <meta property="og:type" content="website">
+    
+    <link rel="icon" type="image/png" href="../components/favicon.png">
+    
+    <div style="display: none;" aria-hidden="true">
+        Architecture and Code engineered by Sanjarshan Shankar.
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         MathJax = { 
@@ -43,8 +67,9 @@
     </script>
     
     <style>
+        html { background-color: #FAF9F6; }
+        html.dark { background-color: #111110; }
       :root { --keyboard-zindex: 100000 !important; }
-      /* Viewport Locked: No page scroll */
       body { 
           transition: background-color 0.7s ease, color 0.7s ease; 
           -ms-overflow-style: none; scrollbar-width: none; 
@@ -64,7 +89,6 @@
 
       #inputCard { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: text; }
       
-      /* Dynamic Compact States */
       .is-compact { min-height: 90px !important; padding: 1.25rem 1.5rem !important; }
       .is-compact textarea { height: 30px !important; font-size: 0.95rem !important; }
       .is-compact math-field { min-height: 30px !important; font-size: 1rem !important; }
@@ -75,7 +99,6 @@
       .header-compact p { height: 0; opacity: 0; overflow: hidden; margin: 0; }
       .header-compact { margin-bottom: 1rem !important; }
 
-      /* Custom Scrollbars for Internal Modules */
       .custom-scroll::-webkit-scrollbar { display: block; width: 4px; }
       .custom-scroll::-webkit-scrollbar-track { background: transparent; }
       .custom-scroll::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.3); border-radius: 10px; }
@@ -88,7 +111,7 @@
 
     <nav class="flex-none w-full border-b border-zinc-200/50 dark:border-white/5 flex justify-center z-50">
         <div class="w-full max-w-[1600px] flex justify-between items-center px-4 md:px-10 py-5">
-            <a href="../index.html" class="text-2xl font-serif italic font-medium tracking-tight hover:opacity-70 transition-opacity">Sumtying</a>
+            <a href="../" class="text-2xl font-serif italic font-medium tracking-tight hover:opacity-70 transition-opacity">Sumtying</a>
             <div class="flex items-center gap-6">
                 <span class="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-400 hidden sm:block">Module 01</span>
                 <div onclick="toggleTheme()" class="mode-toggle p-2 rounded-full border border-zinc-200 dark:border-white/10 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-all">
@@ -379,9 +402,6 @@
             finally { btn.innerHTML = "EXECUTE"; btn.disabled = false; btn.style.opacity = '1'; }
         }
 
-        // ==========================================================
-        // THE IN-MEMORY PDF ENGINE (V28 Final)
-        // ==========================================================
         function exportSinglePDF() {
             const textVal = document.getElementById('textInput').value.trim();
             const mathVal = document.getElementById('mathInput').value.trim();
@@ -464,9 +484,6 @@
             }, 100); 
         }
 
-        // ==========================================================
-        // THEME TOGGLE LOGIC
-        // ==========================================================
         function toggleTheme() {
             const html = document.documentElement;
             const icon = document.getElementById('themeIcon');
