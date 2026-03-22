@@ -1,44 +1,46 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
 
-    // ToyyibPay sends the receipt data here
+    console.log("Webhook triggered by ToyyibPay:", req.body);
+
     const { status_id, billExternalReferenceNo } = req.body;
 
-    // status_id '1' means payment was successful
+    // 1 = Payment Successful
     if (status_id === '1') {
         const clientId = billExternalReferenceNo;
+        
+        // Using your exact frontend Supabase credentials for a guaranteed connection
+        const supabaseUrl = 'https://wluutfmfreemswyvrpqz.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsdXV0Zm1mcmVlbXN3eXZycHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDI4OTksImV4cCI6MjA4OTY3ODg5OX0.YRgMt7o0yIqxtTT-q4VtiFzpPyTcpU8T4ueB4OjyBTU';
 
         try {
-            // 1. Get the user's current credits
-            const { data: user } = await supabase
-                .from('usage_tracker')
-                .select('pro_credits')
-                .eq('client_id', clientId)
-                .single();
+            // 1. Check current credits
+            const getRes = await fetch(`${supabaseUrl}/rest/v1/usage_tracker?client_id=eq.${clientId}&select=pro_credits`, {
+                headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+            });
+            const getData = await getRes.json();
+            
+            const currentCredits = (getData && getData.length > 0) ? getData[0].pro_credits : 0;
+            const newCredits = currentCredits + 100;
 
-            const currentCredits = user ? user.pro_credits : 0;
+            // 2. Add 100 Credits
+            await fetch(`${supabaseUrl}/rest/v1/usage_tracker?client_id=eq.${clientId}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${supabaseKey}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify({ pro_credits: newCredits })
+            });
 
-            // 2. Add 100 credits
-            await supabase
-                .from('usage_tracker')
-                .upsert({ 
-                    client_id: clientId, 
-                    pro_credits: currentCredits + 100 
-                });
-
-            console.log(`Successfully credited 100 to ${clientId}`);
+            console.log(`Successfully added 100 credits to ${clientId}`);
         } catch (error) {
-            console.error('Database update failed:', error);
+            console.error("Database Error:", error);
         }
     }
 
-    // Always send OK so ToyyibPay knows we received the message
+    // Always tell ToyyibPay we received the message so they stop pinging
     res.status(200).send('OK');
 }
