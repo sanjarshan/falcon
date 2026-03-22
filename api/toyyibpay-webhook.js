@@ -1,4 +1,14 @@
 export default async function handler(req, res) {
+    // 1. CORS HEADERS (Allows us to test from the browser)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
 
     console.log("Webhook triggered by ToyyibPay:", req.body);
