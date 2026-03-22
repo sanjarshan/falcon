@@ -1,25 +1,14 @@
 export default async function handler(req, res) {
-    // 1. CORS HEADERS (Allows us to test from the browser)
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
 
-    console.log("Webhook triggered by ToyyibPay:", req.body);
-
+    // CORS is intentionally absent. We only want ToyyibPay's servers talking to this pipe.
+    
     const { status_id, billExternalReferenceNo } = req.body;
 
     // 1 = Payment Successful
     if (status_id === '1') {
         const clientId = billExternalReferenceNo;
         
-        // Using your exact frontend Supabase credentials for a guaranteed connection
         const supabaseUrl = 'https://wluutfmfreemswyvrpqz.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsdXV0Zm1mcmVlbXN3eXZycHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDI4OTksImV4cCI6MjA4OTY3ODg5OX0.YRgMt7o0yIqxtTT-q4VtiFzpPyTcpU8T4ueB4OjyBTU';
 
@@ -45,12 +34,10 @@ export default async function handler(req, res) {
                 body: JSON.stringify({ pro_credits: newCredits })
             });
 
-            console.log(`Successfully added 100 credits to ${clientId}`);
         } catch (error) {
             console.error("Database Error:", error);
         }
     }
 
-    // Always tell ToyyibPay we received the message so they stop pinging
     res.status(200).send('OK');
 }
