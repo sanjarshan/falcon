@@ -1,0 +1,8 @@
+{
+  "name": "falcon-engine",
+  "version": "1.0.0",
+  "dependencies": {
+    "stripe": "^14.20.0",
+    "@supabase/supabase-js": "^2.39.8"
+  }
+}
