@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
     process.env.SUPABASE_URL, 
-    process.env.SUPABASE_SERVICE_ROLE_KEY // We use the Service Role Key here so the server has God-mode access to the DB
+    process.env.SUPABASE_SERVICE_KEY // We use the Service Role Key here so the server has God-mode access to the DB
 );
 
 // Vercel config to read the raw body (Required for Stripe security signatures)
