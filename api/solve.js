@@ -2,80 +2,31 @@ export default async function handler(req, res) {
   // 1. CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*'); 
-  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS,POST,GET');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed.' });
-
-  // 2. Extract Text and Image from the Frontend
-  const { problem, image } = req.body;
-  
-  // Validation: If both are missing, we can't solve anything
-  if (!problem && !image) {
-    return res.status(400).json({ error: 'No engineering problem or image provided.' });
-  }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  
-  // TESTING THE GEN 3 FAST MODEL ENDPOINT
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-  // 3. Construct the Multimodal Payload
-  const promptText = `You are a high-precision engineering solver. Solve the problem provided in the text or the attached image step-by-step. 
-  Pay extreme attention to exponents and superscripts in images.
-  1. ZERO CHITCHAT: NEVER use greetings ("Greetings", "Hello"). NEVER use transitional filler ("Let's break this down", "Here is the solution").
-  2. IMMEDIATE EXECUTION: Start your output directly with "### Step 1: [Action]". 
-  3. CONCISE STEPS: Explain the "why" of a step in 1 brief sentence, then immediately show the math.
-  4. THE FINAL ANSWER: Clearly label the final answer with "### Final Answer" at the bottom.
-  5. SHORT SUMMARY: You may include a maximum 2-sentence summary of the principle used at the very end. NO concluding remarks or cheerleading.
-  6. LATEX MANDATE: Use LaTeX for ALL math. Single $ for inline, double $$ for block equations.
-  7. NO ASCII ART: Never draw diagrams using text characters.
-  User Text Input: ${problem || "Solve the problem shown in the image."}`;
-
-  let requestParts = [{ text: promptText }];
-
-  // If the user uploaded an image, we attach it to the request
-  if (image) {
-    requestParts.push({
-      inline_data: {
-        mime_type: "image/jpeg", // Works for png/jpg
-        data: image
-      }
-    });
-  }
-
-  // 4. Fire the Request to Google
   try {
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: requestParts }]
-      })
-    });
-
+    // 2. Interrogate Google for the exact model list
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
     const data = await response.json();
-    
-    // 5. THE UNMASKED ERROR HANDLER
-    if (!response.ok || !data.candidates) {
-        // Print the exact Google error to your server terminal (Vercel/Node logs)
-        console.error("GOOGLE API RAW ERROR:", JSON.stringify(data, null, 2));
 
-        if (response.status === 429) { 
-            return res.status(503).json({ error: "System is currently experiencing high traffic. Please try again in a few seconds." });
-        }
-        
-        // Send the exact Google error message to the frontend so you can read it on your screen
-        const errorMessage = data.error?.message || "Unknown API Error";
-        return res.status(500).json({ error: `API FAILED: ${errorMessage}` });
+    if (!response.ok) {
+        return res.status(500).json({ error: "Failed to fetch models", details: data });
     }
 
-    const answer = data.candidates[0].content.parts[0].text;
-    res.status(200).json({ solution: answer });
+    // 3. Extract the names and send them to your frontend
+    const modelNames = data.models.map(m => m.name);
+    
+    return res.status(200).json({ 
+        message: "SYSTEM RADAR: Available Models", 
+        models: modelNames 
+    });
 
   } catch (error) {
-    console.error("SERVER CRASH:", error);
-    res.status(500).json({ error: "Connection to the solver core failed. Please check your network." });
+    res.status(500).json({ error: "Server Crash." });
   }
 }
