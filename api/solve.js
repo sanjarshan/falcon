@@ -17,10 +17,11 @@ export default async function handler(req, res) {
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-live-preview:generateContent?key=${apiKey}`;
+  
+  // TESTING THE GEN 3 FAST MODEL ENDPOINT
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash:generateContent?key=${apiKey}`;
 
   // 3. Construct the Multimodal Payload
-  // We build a "parts" array. We always include the text prompt.
   const promptText = `You are a high-precision engineering solver. Solve the problem provided in the text or the attached image step-by-step. 
   Pay extreme attention to exponents and superscripts in images.
   1. ZERO CHITCHAT: NEVER use greetings ("Greetings", "Hello"). NEVER use transitional filler ("Let's break this down", "Here is the solution").
@@ -56,19 +57,25 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     
-    // Masking Rate Limits and Internal Errors
+    // 5. THE UNMASKED ERROR HANDLER
     if (!response.ok || !data.candidates) {
-        if (response.status === 429) { // HTTP 429 is "Too Many Requests"
+        // Print the exact Google error to your server terminal (Vercel/Node logs)
+        console.error("GOOGLE API RAW ERROR:", JSON.stringify(data, null, 2));
+
+        if (response.status === 429) { 
             return res.status(503).json({ error: "System is currently experiencing high traffic. Please try again in a few seconds." });
         }
-        return res.status(500).json({ error: "Unable to process the calculation at this time. Please verify your input and try again." });
+        
+        // Send the exact Google error message to the frontend so you can read it on your screen
+        const errorMessage = data.error?.message || "Unknown API Error";
+        return res.status(500).json({ error: `API FAILED: ${errorMessage}` });
     }
 
     const answer = data.candidates[0].content.parts[0].text;
     res.status(200).json({ solution: answer });
 
   } catch (error) {
-    // Masking fatal server crashes
+    console.error("SERVER CRASH:", error);
     res.status(500).json({ error: "Connection to the solver core failed. Please check your network." });
   }
 }
