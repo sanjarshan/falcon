@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   
   // TESTING THE GEN 3 FAST MODEL ENDPOINT
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash:generateContent?key=${apiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   // 3. Construct the Multimodal Payload
   const promptText = `You are a high-precision engineering solver. Solve the problem provided in the text or the attached image step-by-step. 
