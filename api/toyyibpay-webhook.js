@@ -9,8 +9,8 @@ export default async function handler(req, res) {
     if (status_id === '1') {
         const clientId = billExternalReferenceNo;
         
-        const supabaseUrl = 'https://wluutfmfreemswyvrpqz.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsdXV0Zm1mcmVlbXN3eXZycHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDI4OTksImV4cCI6MjA4OTY3ODg5OX0.YRgMt7o0yIqxtTT-q4VtiFzpPyTcpU8T4ueB4OjyBTU';
+        const supabaseUrl = '//findit';
+        const supabaseKey = '//findit';
 
         try {
             // 1. Check current credits
