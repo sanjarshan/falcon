@@ -1,1 +1,582 @@
-{"status": "Falcon API Engine is Online. Access via sumtying.com"}
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>Falcon | Sumtying</title>
+    
+    <script>
+        if (localStorage.getItem('theme') === 'light') { document.documentElement.classList.remove('dark'); } 
+        else { document.documentElement.classList.add('dark'); }
+    </script>
+    
+    <meta name="description" content="A sovereign engineering calculation solver. Dedicated math vector engine and instant PDF ledgers.">
+    <meta name="keywords" content="Falcon Calculator, Sumtying, Math Engine, Sanjarshan Shankar, SaaS, Engineering Tools">
+    <meta name="author" content="Sanjarshan Shankar">
+    <meta name="creator" content="Sanjarshan Shankar">
+    <meta name="publisher" content="Sanjarshan Shankar">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Falcon | Sumtying">
+    <meta property="og:description" content="The sovereign calculation engine for digital architects. Created by Sanjarshan Shankar.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/png" href="../components/favicon.png">
+    <div style="display: none;" aria-hidden="true">Architecture and Code engineered by Sanjarshan Shankar.</div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        MathJax = { 
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] },
+            options: { enableMenu: false } 
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+                "bg-light": "#FAF9F6",
+                "bg-dark": "#111110",  
+                "card-light": "#FFFFFF",
+                "card-dark": "#181817",
+                "falcon": "#00E5FF",
+            },
+            fontFamily: {
+                "serif": ["Playfair Display", "serif"],
+                "sans": ["Inter", "sans-serif"],
+                "mono": ["JetBrains Mono", "monospace"],
+            }
+          },
+        },
+      }
+    </script>
+
+    <style>
+      /* Hardcoded base colors prevent the white flash on load */
+      html { background-color: #FAF9F6; }
+      html.dark { background-color: #111110; }
+      
+      body { transition: background-color 0.3s ease, color 0.3s ease; }
+      * { -ms-overflow-style: none; scrollbar-width: none; }
+      *::-webkit-scrollbar { display: none; }
+      .dark mjx-container { color: #e5e7eb !important; }
+      textarea:focus { outline: none !important; box-shadow: none !important; }
+    </style>
+</head>
+<body class="bg-bg-light dark:bg-bg-dark text-zinc-900 dark:text-zinc-100 font-sans w-screen h-[100dvh] flex flex-col overflow-hidden relative selection:bg-falcon/20">
+
+    <nav class="flex-none w-full border-b border-zinc-200/50 dark:border-white/5 flex justify-center z-50 bg-bg-light dark:bg-bg-dark relative">
+        <div class="w-full max-w-[1600px] flex justify-between items-center px-4 md:px-10 py-4">
+            
+            <a href="../" class="text-xl md:text-2xl font-serif italic font-medium tracking-tight hover:opacity-70 transition-opacity">Sumtying</a>
+
+            <div class="absolute left-1/2 transform -translate-x-1/2 hidden md:flex items-center gap-2">
+                <span class="text-2xl font-serif font-medium tracking-tight">Falcon</span>
+            </div>
+
+            <div class="flex items-center gap-2 md:gap-4">
+                <div id="creditBadge" class="hidden items-center gap-1.5 px-3 py-1.5 bg-zinc-100 dark:bg-white/5 rounded-full border border-zinc-200 dark:border-white/10">
+                    <span class="material-symbols-outlined text-[12px] md:text-[14px] text-falcon">stars</span>
+                    <span id="creditCount" class="text-[9px] md:text-[10px] font-mono font-bold tracking-wider">...</span>
+                </div>
+
+                <button onclick="toggleHelpModal()" class="w-7 h-7 md:w-8 md:h-8 rounded-full border border-zinc-200 dark:border-white/10 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">
+                    <span class="material-symbols-outlined text-[14px] md:text-[16px] text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">help</span>
+                </button>
+
+                <button id="authBtn" onclick="handleAuth()" class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest border border-zinc-200 dark:border-white/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full hover:bg-zinc-100 dark:hover:bg-white/5 transition-all flex items-center gap-1.5 md:gap-2">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-2.5 h-2.5 md:w-3 md:h-3" alt="G"> SIGN IN
+                </button>
+                <div onclick="toggleTheme()" class="cursor-pointer p-1.5 md:p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-white/5 transition-all">
+                    <span id="themeIcon" class="material-symbols-outlined text-[16px] md:text-[18px]">dark_mode</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="updateBanner" class="w-full bg-falcon/10 border-b border-falcon/20 text-falcon px-4 py-2 flex justify-center items-center relative z-40">
+        <div class="flex items-center justify-center gap-2 text-[9px] md:text-[10px] font-mono tracking-widest uppercase w-full max-w-4xl text-center pr-6">
+            <span class="material-symbols-outlined text-[12px] md:text-[14px] hidden md:block">campaign</span>
+            <span><strong>Update:</strong> Smoother communication & Math Input deployed. Upgraded credit limits, cooldown architecture, and Image Generation deploying soon.</span>
+        </div>
+        <button onclick="document.getElementById('updateBanner').remove()" class="absolute right-4 text-falcon hover:text-zinc-900 dark:hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-[14px] md:text-[16px]">close</span>
+        </button>
+    </div>
+
+    <div id="welcomeScreen" class="absolute inset-0 flex flex-col items-center justify-center z-10 transition-all duration-700 ease-in-out pointer-events-none pb-[15vh]">
+        <div class="absolute inset-0 flex justify-center items-center -z-10 pb-[15vh]">
+            <canvas id="matrixSphere" class="w-[300px] h-[300px] md:w-[450px] md:h-[450px]"></canvas>
+        </div>
+        <h1 class="text-5xl md:text-[5rem] font-serif font-medium tracking-tight mb-3 text-zinc-900 dark:text-zinc-100 drop-shadow-sm">Falcon</h1>
+        <p class="text-[11px] md:text-sm font-sans tracking-wide text-zinc-500 text-center px-4">What calculation do we need to solve today?</p>
+    </div>
+
+    <main id="chatContainer" class="flex-grow w-full max-w-4xl mx-auto overflow-y-auto px-3 md:px-4 pt-6 pb-28 md:pb-32 flex flex-col gap-4 md:gap-6 relative z-20">
+        <div id="outputArea" class="flex flex-col gap-4 md:gap-6 w-full mt-auto"></div>
+    </main>
+
+    <footer class="flex-none w-full fixed bottom-0 left-0 flex flex-col items-center justify-end bg-gradient-to-t from-bg-light via-bg-light to-transparent dark:from-bg-dark dark:via-bg-dark pb-2 md:pb-3 pt-10 z-40 px-3 md:px-4 pointer-events-none">
+        
+        <div id="inputWrapper" class="w-full max-w-3xl bg-card-light dark:bg-zinc-800 border border-zinc-200 dark:border-white/10 rounded-[28px] p-1 md:p-1.5 flex flex-col shadow-sm pointer-events-auto transition-all mb-2 backdrop-blur-xl">
+            
+            <div id="imagePreviewContainer" class="hidden px-4 pt-2 pb-1 flex items-center">
+                <div class="relative inline-block">
+                    <img id="imagePreview" class="h-12 md:h-16 w-auto rounded-lg object-contain border border-zinc-200 dark:border-zinc-700">
+                    <button onclick="clearImage()" class="absolute -top-2 -right-2 bg-zinc-800 dark:bg-zinc-600 text-white rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-[8px] md:text-[10px] hover:bg-red-500 transition-colors pointer-events-auto shadow-md">✕</button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1 md:gap-2 px-2 py-1">
+                <button onclick="document.getElementById('imageUpload').click();" class="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-full transition-colors flex-shrink-0">
+                    <span class="material-symbols-outlined text-[22px] md:text-[24px]">add</span>
+                </button>
+                <input type="file" id="imageUpload" accept="image/*" class="hidden" onchange="processImage()">
+
+                <div class="flex-grow flex flex-col justify-center">
+                    <textarea id="textInput" rows="1" class="w-full bg-transparent border-none focus:ring-0 text-sm md:text-base font-sans resize-none py-2.5 px-1 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500" placeholder="Enter engineering parameters..."></textarea>
+                </div>
+
+                <button id="solveBtn" onclick="simulateSolve()" class="p-2 text-zinc-400 hover:text-falcon transition-colors flex-shrink-0 disabled:opacity-50">
+                    <span class="material-symbols-outlined text-[22px] md:text-[24px]">send</span>
+                </button>
+            </div>
+        </div>
+
+            <div class="flex-1 flex justify-center text-[9px] font-mono text-zinc-400 dark:text-zinc-600 uppercase tracking-widest order-3 md:order-2 mt-4 md:mt-0">
+                © 2026 Sumtying
+            </div>
+
+        <div id="lockedWrapper" class="hidden w-full max-w-3xl bg-card-light dark:bg-card-dark border border-red-200 dark:border-red-900/50 rounded-2xl p-4 md:p-6 flex-col items-center text-center shadow-lg pointer-events-auto mb-4 md:mb-6 transition-all duration-500">
+            <span class="material-symbols-outlined text-red-500 text-2xl md:text-3xl mb-2">lock</span>
+            <h3 class="text-base md:text-lg font-serif mb-1">Engine Locked: Credits Depleted</h3>
+            <p class="text-[10px] md:text-xs text-zinc-500 mb-4 max-w-md">You have exhausted your execution limits. Connect your bank to unlock sovereign limits.</p>
+            <div id="paywallAction" class="w-full flex justify-center"></div>
+        </div>
+    </footer>
+
+    <div id="helpModal" class="fixed inset-0 z-[999999] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-bg-light/80 dark:bg-bg-dark/80 backdrop-blur-md" onclick="toggleHelpModal()"></div>
+        <div class="relative bg-card-light dark:bg-card-dark border border-zinc-200 dark:border-white/10 rounded-2xl w-full max-w-lg p-6 md:p-8 shadow-2xl flex flex-col gap-6 md:gap-8 transform scale-95 opacity-0 transition-all duration-300" id="helpModalContent">
+            <div class="flex justify-between items-center border-b border-zinc-200 dark:border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full bg-falcon shadow-[0_0_8px_#00E5FF]"></span>
+                    <h2 class="text-[9px] md:text-[10px] font-mono tracking-[0.3em] uppercase">System Manual</h2>
+                </div>
+                <button onclick="toggleHelpModal()" class="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-[18px] md:text-[20px]">close</span>
+                </button>
+            </div>
+            <div class="space-y-4 md:space-y-6 text-xs md:text-sm text-zinc-600 dark:text-zinc-400 max-h-[60vh] overflow-y-auto pr-2">
+                <div class="flex gap-3 md:gap-4">
+                    <span class="material-symbols-outlined text-falcon flex-shrink-0">photo_camera</span>
+                    <div>
+                        <strong class="text-zinc-900 dark:text-zinc-100 uppercase text-[9px] md:text-[10px] tracking-widest block mb-1">Visual Telemetry</strong>
+                        Paste screenshots (Ctrl+V) directly into the engine or click the + icon. 
+                    </div>
+                </div>
+                <div class="flex gap-3 md:gap-4">
+                    <span class="material-symbols-outlined text-falcon flex-shrink-0">account_balance_wallet</span>
+                    <div>
+                        <strong class="text-zinc-900 dark:text-zinc-100 uppercase text-[9px] md:text-[10px] tracking-widest block mb-1">Credit Architecture</strong>
+                        You receive 50 free operations. Google Sign-In is required to track usage.
+                    </div>
+                </div>
+            </div>
+            <button onclick="toggleHelpModal()" class="w-full py-2.5 md:py-3 bg-zinc-100 dark:bg-white/5 rounded-lg text-[8px] md:text-[9px] font-bold uppercase tracking-[0.2em] hover:bg-zinc-200 dark:hover:bg-white/10 transition-colors">Acknowledge</button>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://wluutfmfreemswyvrpqz.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsdXV0Zm1mcmVlbXN3eXZycHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDI4OTksImV4cCI6MjA4OTY3ODg5OX0.YRgMt7o0yIqxtTT-q4VtiFzpPyTcpU8T4ueB4OjyBTU';
+        let supabaseInstance = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+
+        let clientId = localStorage.getItem('falcon_client_id') || 'gen_' + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('falcon_client_id', clientId);
+        let session = null;
+        let base64ImagePayload = null;
+        let chatHistory = [];
+        let globalCooldown = false;
+        let animateGlobe = true;
+
+        // --- 3D MATRIX GLOBE LOGIC ---
+        const canvas = document.getElementById('matrixSphere');
+        const ctx = canvas.getContext('2d');
+        const size = window.innerWidth < 768 ? 300 : 450; 
+        canvas.width = size * 2;
+        canvas.height = size * 2;
+        ctx.scale(2, 2);
+
+        const nodes = [];
+        const numNodes = 120;
+        const radius = size * 0.35; 
+
+        for (let i = 0; i < numNodes; i++) {
+            let t = i / (numNodes - 1);
+            let inclination = Math.acos(1 - 2 * t);
+            let azimuth = 2 * Math.PI * 1.618033988749895 * i;
+            let x = Math.sin(inclination) * Math.cos(azimuth) * radius;
+            let y = Math.sin(inclination) * Math.sin(azimuth) * radius;
+            let z = Math.cos(inclination) * radius;
+            nodes.push({ x, y, z });
+        }
+
+        let angleX = 0; let angleY = 0;
+
+        function drawSphere() {
+            if (!animateGlobe) return; 
+            ctx.clearRect(0, 0, size, size);
+            const cx = size / 2; const cy = size / 2;
+            const cosX = Math.cos(angleX); const sinX = Math.sin(angleX);
+            const cosY = Math.cos(angleY); const sinY = Math.sin(angleY);
+            const projectedNodes = [];
+
+            for (let node of nodes) {
+                let x1 = node.x * cosY - node.z * sinY;
+                let z1 = node.z * cosY + node.x * sinY;
+                let y2 = node.y * cosX - z1 * sinX;
+                let z2 = z1 * cosX + node.y * sinX;
+                let scale = 250 / (250 + z2);
+                projectedNodes.push({ px: cx + x1 * scale, py: cy + y2 * scale, z: z2 });
+            }
+
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < projectedNodes.length; i++) {
+                for (let j = i + 1; j < projectedNodes.length; j++) {
+                    const p1 = projectedNodes[i]; const p2 = projectedNodes[j];
+                    const dist = Math.sqrt((p1.px - p2.px)**2 + (p1.py - p2.py)**2);
+                    if (dist < (size * 0.12)) {
+                        let avgZ = (p1.z + p2.z) / 2;
+                        let zAlpha = Math.max(0.05, 1 - (avgZ + radius) / (radius * 2));
+                        ctx.strokeStyle = `rgba(0, 229, 255, ${zAlpha * 0.4})`;
+                        ctx.beginPath(); ctx.moveTo(p1.px, p1.py); ctx.lineTo(p2.px, p2.py); ctx.stroke();
+                    }
+                }
+            }
+
+            for (let p of projectedNodes) {
+                let zAlpha = Math.max(0.1, 1 - (p.z + radius) / (radius * 2));
+                ctx.fillStyle = `rgba(0, 229, 255, ${zAlpha})`;
+                ctx.beginPath();
+                ctx.arc(p.px, p.py, 1.2 * (1 - (p.z + radius)/(radius*3)), 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            angleX += 0.001; angleY += 0.002;
+            requestAnimationFrame(drawSphere);
+        }
+        drawSphere();
+
+        function dismissWelcomeScreen() {
+            const welcome = document.getElementById('welcomeScreen');
+            if (welcome && !welcome.classList.contains('opacity-0')) {
+                welcome.classList.add('opacity-0');
+                setTimeout(() => { 
+                    welcome.style.display = 'none'; 
+                    animateGlobe = false; 
+                }, 700);
+            }
+        }
+
+        // --- CORE FUNCTIONALITY ---
+        async function checkAuth() {
+            if (!supabaseInstance) return;
+            const { data } = await supabaseInstance.auth.getSession();
+            session = data.session;
+            const authBtn = document.getElementById('authBtn');
+            if (session) {
+                clientId = session.user.id;
+                authBtn.innerHTML = `<span class="material-symbols-outlined text-[10px] md:text-[14px]">logout</span> SIGN OUT`;
+                authBtn.classList.add('text-falcon', 'border-falcon');
+                updateCreditDisplay();
+            } else {
+                authBtn.innerHTML = `<img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-2.5 h-2.5 md:w-3 md:h-3"> SIGN IN`;
+                authBtn.classList.remove('text-falcon', 'border-falcon');
+            }
+        }
+
+        async function handleAuth() {
+            if (!supabaseInstance) return;
+            if (session) {
+                await supabaseInstance.auth.signOut();
+                window.location.reload();
+            } else {
+                await supabaseInstance.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href }});
+            }
+        }
+
+        // --- PAYMENT ROUTING LOGIC ---
+        async function redirectToCheckout() {
+            const btn = document.querySelector('button[onclick="redirectToCheckout()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "<div class='text-[10px] font-mono tracking-widest uppercase text-falcon animate-pulse'>CONNECTING...</div>";
+            btn.style.opacity = '0.5';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('https://falcon-tawny.vercel.app/api/toyyibpay-create', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clientId: clientId, amount: 9.00 })
+                });
+
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url; 
+                } else {
+                    alert("Payment system warming up. Please try again.");
+                    btn.innerHTML = originalText; btn.style.opacity = '1'; btn.disabled = false;
+                }
+            } catch (e) {
+                console.error("Payment Gateway Error:", e);
+                alert("Network error. Could not connect to bank.");
+                btn.innerHTML = originalText; btn.style.opacity = '1'; btn.disabled = false;
+            }
+        }
+
+        async function checkUsageLimit() {
+            try {
+                if (!supabaseInstance) return { used: 0, bought: 0 }; 
+                let { data, error } = await supabaseInstance.from('usage_tracker').select('calculations_count, pro_credits').eq('client_id', clientId).single();
+                if (error && error.code === 'PGRST116') {
+                    await supabaseInstance.from('usage_tracker').insert([{ client_id: clientId, calculations_count: 0, pro_credits: 0 }]);
+                    return { used: 0, bought: 0 };
+                }
+                return data ? { used: data.calculations_count, bought: data.pro_credits || 0 } : { used: 0, bought: 0 };
+            } catch (err) { return { used: 0, bought: 0 }; }
+        }
+
+        async function incrementUsage() {
+            try {
+                if (!supabaseInstance) return;
+                const usageData = await checkUsageLimit();
+                await supabaseInstance.from('usage_tracker').update({ calculations_count: usageData.used + 1, last_used: new Date() }).eq('client_id', clientId);
+            } catch (err) {}
+        }
+
+        async function updateCreditDisplay() {
+            const badge = document.getElementById('creditBadge');
+            const countSpan = document.getElementById('creditCount');
+            if (!session) { badge.classList.add('hidden'); return; }
+            const usageData = await checkUsageLimit();
+            const totalAllowed = 50 + usageData.bought;
+            const remaining = totalAllowed - usageData.used;
+            if (remaining <= 0) { badge.classList.add('hidden'); lockEngine(); } 
+            else { badge.classList.remove('hidden'); badge.classList.add('flex'); countSpan.innerText = remaining; }
+        }
+
+        function lockEngine() {
+            document.getElementById('inputWrapper').classList.add('hidden');
+            document.getElementById('inputWrapper').classList.remove('flex');
+            document.getElementById('lockedWrapper').classList.remove('hidden');
+            document.getElementById('lockedWrapper').classList.add('flex');
+            
+            const actionContainer = document.getElementById('paywallAction');
+            if (session) {
+                // LOGGED IN: Show Dual Gateway
+                actionContainer.innerHTML = `
+                    <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto mt-2">
+                        <button onclick="redirectToCheckout()" class="flex-1 flex flex-col items-center justify-center p-6 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl hover:border-falcon hover:bg-zinc-200 dark:hover:bg-white/10 transition-all group h-[140px]">
+                            <div class="flex gap-3 text-zinc-400 dark:text-zinc-500 group-hover:text-falcon transition-colors mb-3">
+                                <span class="material-symbols-outlined text-[24px]">account_balance</span>
+                                <span class="material-symbols-outlined text-[24px]">qr_code_scanner</span>
+                            </div>
+                            <div class="flex flex-col items-center w-full">
+                                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-900 dark:text-zinc-100 mb-1">FPX & DuitNow</span>
+                                <span class="text-[9px] font-mono text-zinc-500 tracking-widest mb-2">MYR 9.00</span>
+                                <span class="text-[7px] font-sans font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em]">Online Bank • QR</span>
+                            </div>
+                        </button>
+                        <button onclick="window.location.href='https://buy.stripe.com/bJeeV63EieXm5Lj0BzaIM00?client_reference_id=${clientId}'" class="flex-1 flex flex-col items-center justify-center p-6 bg-zinc-900 dark:bg-zinc-100 border border-transparent rounded-xl hover:scale-[1.02] transition-transform shadow-lg group h-[140px]">
+                            <div class="flex gap-3 text-white dark:text-black mb-3">
+                                <span class="material-symbols-outlined text-[24px]">credit_card</span>
+                                <span class="material-symbols-outlined text-[24px]">contactless</span>
+                            </div>
+                            <div class="flex flex-col items-center w-full">
+                                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white dark:text-black mb-1">Cards & Wallets</span>
+                                <span class="text-[9px] font-mono text-zinc-400 dark:text-zinc-600 tracking-widest mb-2">MYR 9.00</span>
+                                <span class="text-[7px] font-sans font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.2em]">Apple • GPay • Grab • Alipay</span>
+                            </div>
+                        </button>
+                    </div>
+                `;
+            } else {
+                // GUEST: Force Google Login
+                actionContainer.innerHTML = `
+                    <button onclick="handleAuth()" class="mt-2 px-8 py-3.5 bg-transparent border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-zinc-100 dark:hover:bg-white/5 transition-all flex items-center gap-3">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-4 h-4"> Sign In to Upgrade
+                    </button>
+                `;
+            }
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark'); icon.innerText = 'light_mode'; localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark'); icon.innerText = 'dark_mode'; localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleHelpModal() {
+            const modal = document.getElementById('helpModal');
+            const content = document.getElementById('helpModalContent');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden'); modal.classList.add('flex');
+                setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
+            } else {
+                content.classList.remove('scale-100', 'opacity-100'); content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); 
+            }
+        }
+
+        const tx = document.getElementById("textInput");
+        tx.setAttribute("style", "height:" + (tx.scrollHeight) + "px;overflow-y:hidden;");
+        tx.addEventListener("input", function() {
+            this.style.height = "auto";
+            let newHeight = this.scrollHeight;
+            if(newHeight > 150) newHeight = 150; 
+            this.style.height = newHeight + "px";
+        }, false);
+
+        tx.addEventListener("keydown", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); simulateSolve(); }
+        });
+
+        function scrollToBottom() {
+            const container = document.getElementById("chatContainer");
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function processImage() {
+            const file = document.getElementById('imageUpload').files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                base64ImagePayload = e.target.result.split(',')[1];
+                document.getElementById('imagePreview').src = e.target.result;
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImage() {
+            base64ImagePayload = null;
+            document.getElementById('imageUpload').value = "";
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+        }
+
+        window.addEventListener('paste', (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let i in items) {
+                if (items[i].kind === 'file' && items[i].type.indexOf("image") !== -1) {
+                    const file = items[i].getAsFile();
+                    const dataTransfer = new DataTransfer(); dataTransfer.items.add(file);
+                    document.getElementById('imageUpload').files = dataTransfer.files;
+                    processImage();
+                }
+            }
+        });
+
+        async function simulateSolve() {
+            dismissWelcomeScreen();
+            if (globalCooldown) { alert("Global Cooldown active. Please wait."); return; }
+
+            const input = document.getElementById('textInput').value.trim();
+            if(!input && !base64ImagePayload) return;
+
+            const usageData = await checkUsageLimit();
+            const totalAllowed = 50 + usageData.bought;
+            if (usageData.used >= totalAllowed) { lockEngine(); return; }
+
+            const outputArea = document.getElementById('outputArea');
+            const btn = document.getElementById('solveBtn');
+            const svgIcon = btn.querySelector('span');
+            
+            let userContent = input;
+            if (base64ImagePayload) userContent += `<br><img src="data:image/jpeg;base64,${base64ImagePayload}" class="h-16 rounded mt-2 object-contain">`;
+            
+            outputArea.innerHTML += `
+                <div class="flex justify-end w-full">
+                    <div class="bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-[20px] rounded-br-sm px-4 py-2.5 md:px-5 md:py-3 max-w-[85%] text-sm md:text-base border border-transparent shadow-sm">
+                        ${userContent}
+                    </div>
+                </div>
+            `;
+            if (window.MathJax) MathJax.typesetPromise([outputArea]);
+            
+            chatHistory.push({ role: 'user', content: input });
+            
+            document.getElementById('textInput').value = "";
+            document.getElementById('textInput').style.height = "auto";
+            btn.disabled = true;
+            svgIcon.classList.add('animate-pulse', 'text-falcon');
+            scrollToBottom();
+
+            const loadingId = "load_" + Date.now();
+            outputArea.innerHTML += `
+                <div id="${loadingId}" class="flex justify-start w-full opacity-60">
+                    <div class="px-3 py-2 text-[10px] md:text-xs font-mono uppercase tracking-widest text-falcon animate-pulse">Computing...</div>
+                </div>
+            `;
+            scrollToBottom();
+
+            try {
+                const response = await fetch('https://falcon-tawny.vercel.app/api/solve', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: chatHistory, image: base64ImagePayload })
+                });
+                const data = await response.json();
+                
+                document.getElementById(loadingId).remove();
+
+                if (response.ok) {
+                    await incrementUsage(); updateCreditDisplay();
+                    
+                    const formatted = marked.parse(data.solution);
+                    outputArea.innerHTML += `
+                        <div class="flex justify-start w-full">
+                            <div class="text-zinc-900 dark:text-zinc-100 w-full md:max-w-[90%] prose prose-sm md:prose-base prose-zinc dark:prose-invert">
+                                ${formatted}
+                            </div>
+                        </div>
+                    `;
+                    if (window.MathJax) MathJax.typesetPromise([outputArea]);
+                    
+                    chatHistory.push({ role: 'model', content: data.solution });
+                    clearImage(); 
+                } else if (response.status === 503) {
+                    globalCooldown = true;
+                    outputArea.innerHTML += `<div class="text-red-500 text-[9px] md:text-[10px] uppercase font-mono tracking-widest mb-4">⚠️ GLOBAL COOLDOWN. QUEUE FULL. WAIT 60 SECONDS.</div>`;
+                    setTimeout(() => { globalCooldown = false; }, 60000);
+                } else {
+                    outputArea.innerHTML += `<div class="text-red-400 text-xs md:text-sm mb-4">Error: ${data.error}</div>`;
+                }
+            } catch (e) { 
+                document.getElementById(loadingId)?.remove();
+                outputArea.innerHTML += "<div class='text-red-400 text-xs md:text-sm mb-4'>Fatal Error: Connection failed.</div>"; 
+            } finally { 
+                btn.disabled = false; 
+                svgIcon.classList.remove('animate-pulse', 'text-falcon');
+                scrollToBottom();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') { document.documentElement.classList.remove('dark'); document.getElementById('themeIcon').innerText = 'light_mode'; }
+        });
+    </script>
+</body>
+</html>
